@@ -33,7 +33,10 @@ line_count = 0
                     <status code> <file size>
 """
 
-log_pattern = r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) - \[(.*?)\] "GET /projects/260 HTTP/1.1" (\d{3}) (\d+)'
+log_pattern = (
+    r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) - \[(.*?)\] '
+    r'"GET /projects/260 HTTP/1.1" (\d{3}) (\d+)'
+)
 
 
 """pinter helper"""
