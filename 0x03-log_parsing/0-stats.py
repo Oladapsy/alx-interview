@@ -24,7 +24,7 @@ signal.signal(signal.SIGINT, signal_handler)
 
 """initializing variables needed"""
 total_size = 0
-stat_count = {200: 0, 301: 0, 400: 0, 401: 0, 403: 0, 404: 0, 405: 0, 500: 0}
+stat_count = {'200': 0, '301': 0, '400': 0, '401': 0, '403': 0, '404': 0, '405': 0, '500': 0}  # nopep8
 line_count = 0
 
 """
@@ -54,13 +54,13 @@ def print_metrics(total_size, stat_count):
 for line in sys.stdin:
     """ get each line comming from the command line or input"""
     line_count += 1
-    match = re.match(log_pattern, line)
+    match = re.fullmatch(log_pattern, line.strip())
     """
         log pattern is the regular expression
         line === string: passed
     """
     if match:
-        status_code = int(match.group(3))
+        status_code = match.group(3)
         file_size = int(match.group(4))
 
         total_size += file_size
@@ -70,3 +70,5 @@ for line in sys.stdin:
 
         if line_count % 10 == 0:
             print_metrics(total_size, stat_count)
+
+print_metrics(total_size, stat_count)
