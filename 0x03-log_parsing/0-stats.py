@@ -51,24 +51,29 @@ def print_metrics(total_size, stat_count):
 
 
 """processing the input"""
-for line in sys.stdin:
-    """ get each line comming from the command line or input"""
-    line_count += 1
-    match = re.fullmatch(log_pattern, line.strip())
-    """
-        log pattern is the regular expression
-        line === string: passed
-    """
-    if match:
-        status_code = match.group(3)
-        file_size = int(match.group(4))
+try:
+    for line in sys.stdin:
+        """ get each line comming from the command line or input"""
+        match = re.fullmatch(log_pattern, line.strip())
+        """
+            log pattern is the regular expression
+            line === string: passed
+        """
+        if match:
+            line_count += 1
+            status_code = match.group(3)
+            file_size = int(match.group(4))
 
-        total_size += file_size
+            total_size += file_size
 
-        if status_code in stat_count:
-            stat_count[status_code] += 1
+            if status_code in stat_count:
+                stat_count[status_code] += 1
 
-        if line_count % 10 == 0:
-            print_metrics(total_size, stat_count)
+            if line_count % 10 == 0:
+                print_metrics(total_size, stat_count)
 
-print_metrics(total_size, stat_count)
+
+except Exception as e:
+    pass
+
+    print_metrics(total_size, stat_count)
