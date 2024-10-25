@@ -54,13 +54,13 @@ def print_metrics(total_size, stat_count):
 try:
     for line in sys.stdin:
         """ get each line comming from the command line or input"""
+        line_count += 1
         match = re.fullmatch(log_pattern, line.strip())
         """
             log pattern is the regular expression
             line === string: passed
         """
         if match:
-            line_count += 1
             status_code = match.group(3)
             file_size = int(match.group(4))
 
