@@ -41,7 +41,6 @@ log_pattern = (
 
 """pinter helper"""
 
-
 def print_metrics(total_size, stat_count):
     print(f"File size: {total_size}")
     for code in sorted(stat_count.keys()):
@@ -54,27 +53,24 @@ def print_metrics(total_size, stat_count):
 try:
     for line in sys.stdin:
         """ get each line comming from the command line or input"""
-        try:
-            line = line.strip()
-            match = re.fullmatch(log_pattern, line)
-            """
-                log pattern is the regular expression
-                line === string: passed
-            """
-        except Exception as e:
-            pass
+        line = line.strip()
+        match = re.fullmatch(log_pattern, line)
+        """
+            log pattern is the regular expression
+            line === string: passed
+        """
+        if match:
             line_count += 1
-            if match:
-                status_code = match.group(3)
-                file_size = int(match.group(4))
+            status_code = match.group(3)
+            file_size = int(match.group(4))
 
-                total_size += file_size
+            total_size += file_size
 
-                if status_code in stat_count:
-                    stat_count[status_code] += 1
+            if status_code in stat_count:
+                stat_count[status_code] += 1
 
-                if line_count % 10 == 0:
-                    print_metrics(total_size, stat_count)
+            if line_count % 10 == 0:
+                print_metrics(total_size, stat_count)
 
 
 except Exception as e:
