@@ -41,6 +41,7 @@ log_pattern = (
 
 """pinter helper"""
 
+
 def print_metrics(total_size, stat_count):
     print(f"File size: {total_size}")
     for code in sorted(stat_count.keys()):
@@ -72,8 +73,5 @@ try:
             if line_count % 10 == 0:
                 print_metrics(total_size, stat_count)
 
-
-except Exception as e:
-    pass
-
-print_metrics(total_size, stat_count)
+finally:
+    print_metrics(total_size, stat_count)
