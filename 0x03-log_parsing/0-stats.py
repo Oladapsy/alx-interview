@@ -76,4 +76,4 @@ try:
 except Exception as e:
     pass
 
-    print_metrics(total_size, stat_count)
+print_metrics(total_size, stat_count)
