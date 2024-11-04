@@ -1,53 +1,117 @@
 #!/usr/bin/python3
-""" money"""
+"""
+UTF-8 VALIDATION
+"""
+
+
+def char_bytes_len(one_byte):
+    """
+    Return the number of bytes this character codes for
+
+    A continuation returns None
+
+    A single-byte character starts with = '0b0'
+    A two-byte character starts with = '0b110'
+    A three-byte character starts with = '0b1110'
+    A four-byte character starts with = '0b11110'
+
+    UTF-8 uses only 1-4 byte to encode characters
+    """
+    # Check if one_byte starts with '0b0'
+    if one_byte >> 7 == 0b0:
+        return 1    # A single-byte character
+
+    bit_len = 5
+    byte_count = 0b110
+
+    while bit_len > 0:
+        # Check if one_byte starts with `byte_count` binary value
+        if one_byte >> bit_len == byte_count:
+            return 7 - bit_len
+        else:
+            bit_len -= 1
+            byte_count = (byte_count << 1) + 0b10
+
+    # print("Could not find len of expected characters")  # test
+    return None
+
+
+def is_continuation_byte(one_byte):
+    """
+    Return True is a byte starts with 10
+    """
+    if one_byte >> 6 == 0b10:
+        return True
+    return False
 
 
 def validUTF8(data):
-    if data == []:
-        return True
+    """
+    Determine if a given data set represents a valid UTF-8 encoding.
 
-    binary_data = [bin(num)[2:].zfill(8) for num in data]
+    Return True if data is a valid UTF-8 encoding, else return False
 
-    # Check for Overlong Encodings
-    if any(bin_num.startswith("0") for bin_num in binary_data):
+    Sample data:
+    data = [128, 323, 424]
+
+    Each data set is a list of integers.
+    The data set can contain multiple characters
+    The data will be represented by a list of integers
+    Each integer represents 1 byte of data, therefore you only need to
+    handle the 8 least significant bits of each integer
+
+    - CONCEPT -
+    For a Single-byte character:
+        * The byte starts with a `0`
+        * It represents a single character in Unicode character set
+    For a Two-byte character:
+        * The byte starts with a `110`
+    For a Three-byte character:
+        * The byte starts with a `1110`
+    For a continuation byte:
+        * The byte starts with `10`
+    Note: UTF-8 encodes character in 1 to 4 bytes and not more.
+    """
+    if not isinstance(data, list):
         return False
 
-    # Check for Invalid Continuation Bytes
-    if any(not bin_num.startswith("10") for bin_num in binary_data[1:]):
-        return False
-
-    # Validate Code Point Ranges
-    decoded_chars = [int(bin_num, 2) for bin_num in binary_data]
-    if any(0xD800 <= code_point <= 0xDFFF for code_point in decoded_chars):
-        return False
-
-    # Handle Overlong Sequences
-    decoded_str = "".join(chr(char) for char in decoded_chars)
-    reencoded_data = decoded_str.encode("utf-8")
-    if binary_data != [bin(byte)[2:].zfill(8) for byte in reencoded_data]:
-        return False
-
-    # Handle Maximum Code Point
-    if any(code_point > 0x10FFFF for code_point in decoded_chars):
-        return False
-
-    # Validate Sequence Lengths
-    expected_length = 0
-    for i, bin_num in enumerate(binary_data):
-        if i == 0:
-            if bin_num.startswith("110"):
-                expected_length = 2
-            elif bin_num.startswith("1110"):
-                expected_length = 3
-            elif bin_num.startswith("11110"):
-                expected_length = 4
-            else:
-                continue
-        elif bin_num.startswith("10"):
-            expected_length -= 1
-        else:
+    bytes_left = 0  # the number of bytes to access
+    for num in data:
+        if not isinstance(num, int):
             return False
-    if expected_length > 0:
+
+        if bytes_left:
+            # Traverse through remaining bytes
+            if not is_continuation_byte(num):
+                # print(f"[{num}]: Continuation byte expected")     # test
+                return False
+            # print(f"[{num}]: Continuation byte gotten") # test
+            bytes_left = bytes_left - 1
+            continue
+
+        # Get only the least significant byte
+        one_byte = num & 0xFF
+
+        # Get the total number of bytes expected
+        num_char = char_bytes_len(one_byte)
+        if not num_char:
+            # print("Invalid byte")
+            return False
+        # print("[{}]: Total char len: {}".format(num, num_char))    # test
+
+        if num_char > 4:
+            # UTF-8 encodes a character using 1 to 4 bytes only
+            # print("UTF-8 encodes a character using 1 to 4 bytes only")
+            return False
+
+        if num_char > 1:
+            bytes_left = num_char - 1
+            # print("Need to traverse {} more\
+            # continuation bytes".format(bytes_left)) # test
+
+    if bytes_left:
+        # Did not traverse all the required continuation bytes
+        # print(f"Did not traverse all continuation bytes")   # test
         return False
 
     return True
