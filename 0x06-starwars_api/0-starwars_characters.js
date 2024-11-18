@@ -36,7 +36,7 @@ request(url, async (error, response, body) => {
   try {
     const characterNames = await Promise.all(
       characters.map((url) =>
-        fetchCharacter(url).catch((err) => `Error: ${err}`)
+        fetchCharacter(url).catch((err) => `Error: ${err.message}`)
       )
     );
 
@@ -47,19 +47,19 @@ request(url, async (error, response, body) => {
 });
 
 // Helper function
-function fetchCharacter(url) {
+function fetchCharacter (url) {
   return new Promise((resolve, reject) => {
     request(url, (error, response, body) => {
       if (error) {
-        reject(`Network error: ${error.message}`);
+        reject(new Error(`Network error: ${error.message}`));
       } else if (response.statusCode !== 200) {
-        reject(`HTTP error: ${response.statusCode} for ${url}`);
+        reject(new Error(`HTTP error: ${response.statusCode} for ${url}`));
       } else {
         try {
           const characterData = JSON.parse(body);
           resolve(characterData.name);
         } catch (err) {
-          reject(`Parsing error for ${url}: ${err.message}`);
+          reject(new Error(`Parsing error for ${url}: ${err.message}`));
         }
       }
     });
